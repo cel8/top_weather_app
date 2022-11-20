@@ -1,0 +1,30 @@
+{
+  "name": "top_weather_app",
+  "version": "1.0.0",
+  "description": "%%description%% part of <a href=\"src-page-link\">The Odin Project assignment</a>.",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --watch",
+    "build": "webpack"
+  },
+  "keywords": [],
+  "author": "Alessandro Celotti <alex.celotti@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "css-loader": "^6.7.2",
+    "date-fns": "^2.29.3",
+    "style-loader": "^3.3.1"
+  },
+  "devDependencies": {
+    "clean-webpack-plugin": "^4.0.0",
+    "eslint": "^8.28.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-webpack": "^0.13.2",
+    "eslint-plugin-import": "^2.26.0",
+    "html-webpack-plugin": "^5.5.0",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.0"
+  }
+}
