@@ -5,6 +5,7 @@ import 'Svg/dark-theme.svg';
 import 'Svg/light-theme.svg';
 import DomManager from 'Utilities/dom-manager';
 import ButtonManager from 'Utilities/button-manager';
+import UiWeatherController from 'View/ui-weather-controller';
 
 const root = document.documentElement;
 const body = document.querySelector('body');
@@ -14,6 +15,7 @@ export const settings = { theme: 'dark' };
 
 export default class UiController {
   constructor() {
+    this.uiWeatherController = new UiWeatherController();
   }
 
   #doLoadHeader() {
@@ -32,11 +34,12 @@ export default class UiController {
     DomManager.addNodeChild(header, btnToggleTheme);
   }
 
-  static #doCreateHome() {
+  #doCreateHome() {
+    this.uiWeatherController.createMainSection();
   }
 
-  static #doLoadMainContent() {
-    UiController.#doCreateHome();
+  #doLoadMainContent() {
+    this.#doCreateHome();
   }
 
   static #doLoadFooter() {
@@ -50,7 +53,7 @@ export default class UiController {
     // Set main root theme
     root.className = settings.theme;
     this.#doLoadHeader();
-    UiController.#doLoadMainContent();
+    this.#doLoadMainContent();
     UiController.#doLoadFooter();
   }
 }

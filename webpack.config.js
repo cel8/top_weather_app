@@ -5,11 +5,15 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   mode: 'development',
   entry: {
+    weatherController:  './src/controller/weather-controller.js',
     index:              './src/index.js',
+    weather:            './src/modules/weather.js',
+    zone:               './src/modules/zone.js',
     buttonManager:      './src/utilities/button-manager.js',
     inputManager:       './src/utilities/input-manager.js',
     domManager:         './src/utilities/dom-manager.js',
     uiController:       './src/view/ui-controller.js',
+    uiWeatherCtlr:      './src/view/ui-weather-controller.js',
   },
   devtool: 'inline-source-map',
   plugins: [
