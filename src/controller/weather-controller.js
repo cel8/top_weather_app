@@ -1,8 +1,15 @@
 import axios from 'axios';
-import WeatherZone from 'Modules/weather';
+import { Temperature, tempUnit } from 'Modules/temperature';
+import { Wind, windUnit } from 'Modules/wind';
+import Weather from 'Modules/weather';
 import Zone from 'Modules/zone';
 
 const openWeatherMapApiKey = 'deae8c6c4872e7bc487ec8348a3e1d70';
+
+export const unitMode = {
+  metric: 'metric',
+  imperial: 'imperial'
+}
 
 export const geocodingMode = {
   location: 1,
@@ -12,7 +19,8 @@ export const geocodingMode = {
 export class WeatherController {
   constructor() {
     this.zone = undefined;
-    this.weatherZone = undefined;
+    this.weather = undefined;
+    this.currentUnitMode = unitMode.metric;
   }
 
   static getGeocodingString(location, mode) {
@@ -63,6 +71,35 @@ export class WeatherController {
     }
   }
 
+  precessData(data) {
+    this.weather = new Weather();
+    // Set weather information
+    this.weather.setTemperature = new Temperature(data.main);
+    this.weather.setWind = new Wind(data.wind);
+    this.weather.setZone = this.zone;
+    console.log(this.weather);
+  }
+
+  getLocation() {
+    let locationString = `${this.zone.getCity}`;
+    if(this.zone.getState) locationString += `, ${this.zone.getState}`;
+    locationString += `, ${this.zone.getCountry}`;
+    return locationString;
+  }
+
+  getWeatherTemperature() {
+    const unit = this.currentUnitMode === unitMode.metric ? tempUnit.c : tempUnit.f;
+    return this.weather.getTemp.getTemperature(unit);
+  }
+
+  getWeatherWind() {
+    const unit = this.currentUnitMode === unitMode.metric ? windUnit.kmh : windUnit.mph;
+    return {
+      direction: this.weather.getWind.getDirection,
+      speed: this.weather.getWind.getSpeed(unit)
+    }
+  }
+
   async fetchWeather() {
     const message = `Cannot fetch the current weather for '${this.zone.getCity}`;
 
@@ -73,7 +110,8 @@ export class WeatherController {
       const units = 'metric';
       const apiCallString = `${apiUrl}weather?lat=${lat}&lon=${lon}&units=${units}&appid=${openWeatherMapApiKey}`;
       const response = await axios.get(apiCallString);
-      console.log(response);
+      this.precessData(response.data);
+      return this.weather;
     } catch(error) {
       throw message;
     }

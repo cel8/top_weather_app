@@ -1,8 +1,9 @@
-import { WeatherController, geocodingMode } from 'Controller/weather-controller';
+import { WeatherController, geocodingMode, unitMode } from 'Controller/weather-controller';
 import DomManager from 'Utilities/dom-manager';
 import ButtonManager from 'Utilities/button-manager';
 import InputManager from 'Utilities/input-manager';
 import 'Svg/city.svg';
+import 'Svg/wind-navigation.svg';
 
 const main = document.querySelector('main');
 
@@ -14,14 +15,44 @@ export default class UiWeatherController {
 
   createMainSection() {
     this.createSearchSection();
-    this.createWeatherSection();
+    UiWeatherController.createWeatherSection();
   }
 
-  createWeatherSection() {
-    const divWeather = DomManager.createNode('div', 'main-weather-zone');
-    
+  static createWeatherSection() {
+    const divWeatherGrid = DomManager.createNode('div', 'main-weather-grid');
+    // Location
+    const divLocation = DomManager.createNode('p', 'main-location');
+    // Weather
+    const divWeather = DomManager.createNode('div', 'main-weather');
+    // Temperature
+    const divTemperature = DomManager.createNode('div', 'main-temperature-container');
+    DomManager.createAddNode('p', divTemperature, 'main-temperature');
+    const divTemperatureInfo = DomManager.createAddNode('div', divTemperature)
+    DomManager.createAddNode('p', divTemperatureInfo, 'main-temperature-max');
+    DomManager.createAddNode('p', divTemperatureInfo, 'main-temperature-feels');
+    DomManager.createAddNode('p', divTemperatureInfo, 'main-temperature-min');
+    // Other information grid
+    const divWeatherInfoGrid = DomManager.createNode('div', 'main-weather-info-grid');
+    // Header bar
+    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-header', null, 'Cloudiness');
+    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-header', null, 'Humidity');
+    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-header', null, 'Pressure');
+    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-header', null, 'Wind');
+    // Registration
+    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-cloudiness');
+    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-humidity');
+    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-pressure');
+    const divWind = DomManager.createAddNode('div', divWeatherInfoGrid, 'grid-wind');
+    DomManager.addNodeChild(divWind, ButtonManager.createImageButton('wind-navigation.svg', 'grid-wind-direction'));
+    DomManager.createAddNode('p', divWind, 'grid-wind-speed');
     // Add section to main
-    DomManager.addNodeChild(main, divWeather);
+    DomManager.addNodeChild(main, divWeatherGrid);
+    DomManager.addNodeChild(divWeatherGrid, divLocation);
+    DomManager.addNodeChild(divWeatherGrid, divWeather);
+    DomManager.addNodeChild(divWeatherGrid, divTemperature);
+    DomManager.addNodeChild(divWeatherGrid, divWeatherInfoGrid);
+    // Hide weather node
+    DomManager.toggleDisplayByNode(divWeatherGrid);
   }
 
   cbChangePlaceholder() {
@@ -34,6 +65,30 @@ export default class UiWeatherController {
     editText.setAttribute('placeholder', placeholder);
   }
 
+  displayWind() {
+    const objWind = this.weatherController.getWeatherWind();
+    const imgWindDirection = document.querySelector('.grid-wind-direction > img');
+    imgWindDirection.style.transform = `rotate(${objWind.direction}deg)`;
+    document.querySelector('.grid-wind-speed').textContent = objWind.speed;
+  }
+
+  displayTemperature() {
+    const objTemperature = this.weatherController.getWeatherTemperature();
+    document.querySelector('.main-temperature').textContent = objTemperature.temp;
+    document.querySelector('.main-temperature-max').textContent = objTemperature.max;
+    document.querySelector('.main-temperature-feels').textContent = objTemperature.feels;
+    document.querySelector('.main-temperature-min').textContent = objTemperature.min;
+  }
+
+  displayWeather() {
+    const divWeatherGrid = document.querySelector('.main-weather-grid');
+    document.querySelector('.main-location').textContent = this.weatherController.getLocation();
+    this.displayTemperature();
+    this.displayWind();
+    // Show weather node
+    DomManager.toggleDisplayByNode(divWeatherGrid);
+  }
+
   async cbSearchEvent(event) {
     event.preventDefault();
     const form = main.querySelector('form');
@@ -44,6 +99,7 @@ export default class UiWeatherController {
       await this.weatherController.geocodingLocation(editText.value, mode);
       pErrorCode.textContent = '';
       await this.weatherController.fetchWeather();
+      this.displayWeather();
     } catch(message) {
       pErrorCode.textContent = message;
     }
