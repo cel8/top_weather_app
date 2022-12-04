@@ -16,9 +16,9 @@ export class Temperature {
     this.pressure = objTemperature.pressure;
   }
 
-  get getPressure() { return this.pressure; }
+  get getPressure() { return `${this.pressure} mbar`; }
 
-  get getHumidity() { return this.humidity; }
+  get getHumidity() { return `${this.humidity}%`; }
 
   getTemperature(unit = tempUnit.c) {
     return unit === tempUnit.c ? this.#toCelsius() : this.#toFehrenheit();

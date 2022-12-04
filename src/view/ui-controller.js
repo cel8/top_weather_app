@@ -22,6 +22,7 @@ export default class UiController {
     const header  = document.querySelector('header');
     
     DomManager.addNodeChild(header, ButtonManager.createImageButton('home-outline.svg', 'header-button', () => {
+      // FIXME: reset data
       this.#doCreateHome();
     }));
 

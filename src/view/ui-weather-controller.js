@@ -1,8 +1,10 @@
-import { WeatherController, geocodingMode, unitMode } from 'Controller/weather-controller';
+import { WeatherController, geocodingMode, unitMode } from 'Controller/weather-controller'; // TODO: switch to imperial data
 import DomManager from 'Utilities/dom-manager';
 import ButtonManager from 'Utilities/button-manager';
 import InputManager from 'Utilities/input-manager';
 import 'Svg/city.svg';
+import 'Svg/sunset.svg';
+import 'Svg/sunrise.svg';
 import 'Svg/wind-navigation.svg';
 
 const main = document.querySelector('main');
@@ -13,6 +15,8 @@ export default class UiWeatherController {
     this.locationCity = true;
   }
 
+  // TODO: reset weather data and reload data every hour
+  
   createMainSection() {
     this.createSearchSection();
     UiWeatherController.createWeatherSection();
@@ -22,8 +26,16 @@ export default class UiWeatherController {
     const divWeatherGrid = DomManager.createNode('div', 'main-weather-grid');
     // Location
     const divLocation = DomManager.createNode('p', 'main-location');
+    const divCurrentTime = DomManager.createNode('p', 'main-current-time');
     // Weather
     const divWeather = DomManager.createNode('div', 'main-weather');
+    DomManager.createAddNodeImg('', 'weather-icon', divWeather, 'main-weather-icon', null, false);
+    DomManager.createAddNode('p', divWeather, 'main-weather-name');
+    DomManager.createAddNode('p', divWeather, 'main-weather-description');
+    const divPrecipitation = DomManager.createNode('div', 'main-weather-precipitation');
+    DomManager.createAddNode('p', divPrecipitation, 'grid-header', null, 'Precipitation');
+    DomManager.createAddNode('p', divPrecipitation, 'grid-precipitation');
+    DomManager.addNodeChild(divWeather, divPrecipitation);
     // Temperature
     const divTemperature = DomManager.createNode('div', 'main-temperature-container');
     DomManager.createAddNode('p', divTemperature, 'main-temperature');
@@ -34,20 +46,27 @@ export default class UiWeatherController {
     // Other information grid
     const divWeatherInfoGrid = DomManager.createNode('div', 'main-weather-info-grid');
     // Header bar
+    DomManager.addNodeChild(divWeatherInfoGrid, ButtonManager.createImageButton('sunrise.svg', 'grid-header-icon'));
+    DomManager.addNodeChild(divWeatherInfoGrid, ButtonManager.createImageButton('sunset.svg', 'grid-header-icon'));
     DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-header', null, 'Cloudiness');
     DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-header', null, 'Humidity');
     DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-header', null, 'Pressure');
+    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-header', null, 'Visibility');
     DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-header', null, 'Wind');
     // Registration
+    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-sunrise');
+    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-sunset');
     DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-cloudiness');
     DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-humidity');
     DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-pressure');
+    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-visibility');
     const divWind = DomManager.createAddNode('div', divWeatherInfoGrid, 'grid-wind');
     DomManager.addNodeChild(divWind, ButtonManager.createImageButton('wind-navigation.svg', 'grid-wind-direction'));
     DomManager.createAddNode('p', divWind, 'grid-wind-speed');
     // Add section to main
     DomManager.addNodeChild(main, divWeatherGrid);
     DomManager.addNodeChild(divWeatherGrid, divLocation);
+    DomManager.addNodeChild(divWeatherGrid, divCurrentTime);
     DomManager.addNodeChild(divWeatherGrid, divWeather);
     DomManager.addNodeChild(divWeatherGrid, divTemperature);
     DomManager.addNodeChild(divWeatherGrid, divWeatherInfoGrid);
@@ -72,6 +91,17 @@ export default class UiWeatherController {
     document.querySelector('.grid-wind-speed').textContent = objWind.speed;
   }
 
+  displayWeatherExtra() {
+    const objExtraInfo = this.weatherController.getWeatherExtraInfo();
+    document.querySelector('.grid-sunrise').textContent = objExtraInfo.dayTime.sunrise;
+    document.querySelector('.grid-sunset').textContent = objExtraInfo.dayTime.sunset;
+    document.querySelector('.grid-cloudiness').textContent = objExtraInfo.cloudiness;
+    document.querySelector('.grid-humidity').textContent = objExtraInfo.humidity;
+    document.querySelector('.grid-pressure').textContent = objExtraInfo.pressure;
+    document.querySelector('.grid-visibility').textContent = objExtraInfo.visibility;
+    this.displayWind();
+  }
+
   displayTemperature() {
     const objTemperature = this.weatherController.getWeatherTemperature();
     document.querySelector('.main-temperature').textContent = objTemperature.temp;
@@ -80,11 +110,27 @@ export default class UiWeatherController {
     document.querySelector('.main-temperature-min').textContent = objTemperature.min;
   }
 
+  displayPrecipitation() {
+    document.querySelector('.grid-precipitation').textContent = this.weatherController.getPrecipitation();
+  }
+
+  displayWeatherInfo() {
+    const objWeather = this.weatherController.getWeather();
+    document.querySelector('.main-weather-name').textContent = objWeather.main;
+    document.querySelector('.main-weather-description').textContent = objWeather.description;
+    const icon = document.querySelector('.main-weather-icon');
+    const url = `http://openweathermap.org/img/wn/${objWeather.icon}@2x.png`;
+    DomManager.updateNodeImg(url, icon, false);
+    this.displayPrecipitation();
+  }
+
   displayWeather() {
     const divWeatherGrid = document.querySelector('.main-weather-grid');
     document.querySelector('.main-location').textContent = this.weatherController.getLocation();
+    document.querySelector('.main-current-time').textContent = this.weatherController.getCurrentTime();
+    this.displayWeatherInfo();
     this.displayTemperature();
-    this.displayWind();
+    this.displayWeatherExtra();
     // Show weather node
     DomManager.toggleDisplayByNode(divWeatherGrid);
   }
@@ -99,7 +145,7 @@ export default class UiWeatherController {
       await this.weatherController.geocodingLocation(editText.value, mode);
       pErrorCode.textContent = '';
       await this.weatherController.fetchWeather();
-      this.displayWeather();
+      this.displayWeather(); // FIXME: shall click twice
     } catch(message) {
       pErrorCode.textContent = message;
     }

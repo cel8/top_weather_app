@@ -3,6 +3,7 @@ import { Temperature, tempUnit } from 'Modules/temperature';
 import { Wind, windUnit } from 'Modules/wind';
 import Weather from 'Modules/weather';
 import Zone from 'Modules/zone';
+import moment from 'moment';
 
 const openWeatherMapApiKey = 'deae8c6c4872e7bc487ec8348a3e1d70';
 
@@ -35,7 +36,7 @@ export class WeatherController {
     return geocodeString;
   }
 
-  static getGeocodingJson(response) {
+  static getGeocodingData(response) {
     let geocode;
 
     if (Array.isArray(response.data)) {
@@ -54,7 +55,7 @@ export class WeatherController {
     try {
       const geocodeString = WeatherController.getGeocodingString(location, mode);
       const response = await axios.get(geocodeString);
-      const data = WeatherController.getGeocodingJson(response);
+      const data = WeatherController.getGeocodingData(response);
       if(!data) throw message;
 
       this.zone = new Zone(
@@ -71,13 +72,48 @@ export class WeatherController {
     }
   }
 
+  processWeatherData(weather) {
+    let weatherData = weather;
+
+    if (Array.isArray(weather)) {
+      const first = 0;
+      weatherData = weather[first];
+    }
+
+    // Set current weather
+    this.weather.setCurrentWeather(weatherData.id,
+                                   weatherData.main,
+                                   weatherData.description,
+                                   weatherData.icon);
+  }
+
+  processPrecipitationData(data) {
+    const wid = this.weather.getCurrentWeather.id;
+
+    // Set precipitation
+    if (wid >= 600 && wid <= 699) { // Snow ID
+      if(data.snow) this.weather.setPrecipitation = data.snow['1h'];
+    } else if(data.rain) {
+      this.weather.setPrecipitation = data.rain['1h'];
+    }
+  }
+
   precessData(data) {
     this.weather = new Weather();
     // Set weather information
     this.weather.setTemperature = new Temperature(data.main);
     this.weather.setWind = new Wind(data.wind);
     this.weather.setZone = this.zone;
-    console.log(this.weather);
+    this.weather.setCloudiness = data.clouds.all;
+    this.weather.setVisibility = data.visibility;
+    // FIXME: invalid timezone
+    this.weather.setCurrentTime = moment.unix(data.dt).format('HH:mm')
+    this.weather.setDayTime(
+      moment.unix(data.sys.sunset).format('HH:mm'),
+      moment.unix(data.sys.sunrise).format('HH:mm')
+    );
+    this.processWeatherData(data.weather);
+    this.processPrecipitationData(data);
   }
 
   getLocation() {
@@ -85,6 +121,10 @@ export class WeatherController {
     if(this.zone.getState) locationString += `, ${this.zone.getState}`;
     locationString += `, ${this.zone.getCountry}`;
     return locationString;
+  }
+
+  getCurrentTime() {
+    return this.weather.getCurrentTime;
   }
 
   getWeatherTemperature() {
@@ -97,6 +137,24 @@ export class WeatherController {
     return {
       direction: this.weather.getWind.getDirection,
       speed: this.weather.getWind.getSpeed(unit)
+    }
+  }
+
+  getWeather() {
+    return this.weather.getCurrentWeather;
+  }
+
+  getPrecipitation() {
+    return this.weather.getPrecipitation;
+  }
+
+  getWeatherExtraInfo() {
+    return {
+      dayTime: this.weather.getDayTime,
+      cloudiness: this.weather.getCloudiness,
+      pressure: this.weather.getTemp.getPressure,
+      humidity: this.weather.getTemp.getHumidity,
+      visibility: this.weather.getVisibility
     }
   }
 

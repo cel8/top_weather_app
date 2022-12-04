@@ -1,4 +1,4 @@
-import 'Style/style.css';
+import 'Style/style.css'; // TODO: style it
 import UiController from 'View/ui-controller';
 
 const uiController = new UiController();
