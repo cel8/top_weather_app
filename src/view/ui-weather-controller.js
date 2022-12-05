@@ -16,7 +16,7 @@ export default class UiWeatherController {
   }
 
   // TODO: reset weather data and reload data every hour
-  
+
   createMainSection() {
     this.createSearchSection();
     UiWeatherController.createWeatherSection();
@@ -135,6 +135,34 @@ export default class UiWeatherController {
     DomManager.toggleDisplayByNode(divWeatherGrid);
   }
 
+  static resetWeather() {
+    const divWeatherGrid = document.querySelector('.main-weather-grid');
+    if (divWeatherGrid.style.display !== 'none') {
+      document.querySelector('.main-location').textContent = '';
+      document.querySelector('.main-current-time').textContent = '';
+      document.querySelector('.main-weather-name').textContent = '';
+      document.querySelector('.main-weather-description').textContent = '';
+      const icon = document.querySelector('.main-weather-icon');
+      DomManager.updateNodeImg('', icon, false);
+      document.querySelector('.grid-precipitation').textContent = '';
+      document.querySelector('.main-temperature').textContent = '';
+      document.querySelector('.main-temperature-max').textContent = '';
+      document.querySelector('.main-temperature-feels').textContent = '';
+      document.querySelector('.main-temperature-min').textContent = '';
+      document.querySelector('.grid-sunrise').textContent = '';
+      document.querySelector('.grid-sunset').textContent = '';
+      document.querySelector('.grid-cloudiness').textContent = '';
+      document.querySelector('.grid-humidity').textContent = '';
+      document.querySelector('.grid-pressure').textContent = '';
+      document.querySelector('.grid-visibility').textContent = '';
+      const imgWindDirection = document.querySelector('.grid-wind-direction > img');
+      imgWindDirection.style.transform = `rotate(0deg)`;
+      document.querySelector('.grid-wind-speed').textContent = '';
+      // Show weather node
+      DomManager.toggleDisplayByNode(divWeatherGrid);
+    }
+  }
+
   async cbSearchEvent(event) {
     event.preventDefault();
     const form = main.querySelector('form');
@@ -146,6 +174,7 @@ export default class UiWeatherController {
       pErrorCode.textContent = '';
       await this.weatherController.fetchWeather();
       this.displayWeather(); // FIXME: shall click twice
+      editText.value = '';
     } catch(message) {
       pErrorCode.textContent = message;
     }
@@ -168,5 +197,13 @@ export default class UiWeatherController {
     DomManager.addNodeChild(main, divSearch);
     DomManager.addNodeChild(divSearch, form);
     DomManager.addNodeChild(divSearch, btnCity);
+  }
+
+  static resetSearchBar() {
+    const form = main.querySelector('form');
+    const pErrorCode = form.querySelector('p');
+    const editText = main.querySelector('#searchBarID');
+    editText.value = '';
+    pErrorCode.textContent = '';
   }
 }

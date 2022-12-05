@@ -23,7 +23,8 @@ export default class UiController {
     
     DomManager.addNodeChild(header, ButtonManager.createImageButton('home-outline.svg', 'header-button', () => {
       // FIXME: reset data
-      this.#doCreateHome();
+      UiWeatherController.resetSearchBar();
+      UiWeatherController.resetWeather();
     }));
 
     const btnToggleTheme = ButtonManager.createImageButton(`${settings.theme}-theme.svg`, 'header-button', () => {
