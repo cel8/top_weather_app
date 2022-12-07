@@ -152,3 +152,10 @@ input:checked + .slider:before {
   width: 2rem;
 }
 
+/* Grid weather information */
+
+.main-weather-info-grid {
+  display: grid;
+  grid-template-rows: repeat(2, 1fr);
+  grid-template-columns: repeat(7, 1fr);
+}

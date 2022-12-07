@@ -1,11 +1,11 @@
 import MathHelper from 'Utilities/math-helper';
 
-export const tempUnit = {
+const tempUnit = {
   c: '°C',
   f: '°F'
 };
 
-export class Temperature {
+export default class Temperature {
   constructor(objTemperature) {
     if (!objTemperature) throw new 'Invalid temperature.';
     this.temp = MathHelper.getRound(objTemperature.temp);
@@ -16,12 +16,12 @@ export class Temperature {
     this.pressure = objTemperature.pressure;
   }
 
-  get getPressure() { return `${this.pressure} mbar`; }
+  get getPressure() { return `${this.pressure} mbar`; } // TODO: get in inch
 
   get getHumidity() { return `${this.humidity}%`; }
 
-  getTemperature(unit = tempUnit.c) {
-    return unit === tempUnit.c ? this.#toCelsius() : this.#toFehrenheit();
+  getTemperature(isMetricUnit = true) {
+    return isMetricUnit ? this.#toCelsius() : this.#toFehrenheit();
   }
 
   #toCelsius() {

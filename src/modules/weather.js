@@ -1,7 +1,13 @@
 import MathHelper from 'Utilities/math-helper';
-import { Temperature } from 'Modules/temperature';
-import { Wind } from 'Modules/wind';
+import Temperature from 'Modules/temperature';
+import Wind from 'Modules/wind';
 import Zone from 'Modules/zone';
+
+export const spaceUnit = {
+  meter:     'm',
+  kilometer: 'km',
+  miles:     'mi'
+};
 
 export default class Weather {
   constructor() {
@@ -32,16 +38,11 @@ export default class Weather {
 
   get getPrecipitation() {
     const value = MathHelper.getRound(this.precipitation, 1);
-    return value ? `${value} mm` : 'none';
+    return value ? `${value} mm` : 'none'; // TODO: get mm in inch
   }
 
-  get getVisibility() {
-    const conversionHelper = (meter) =>  MathHelper.getRound(meter / 1000, 1);
-    if(this.visibility >= 1000) {
-      const value = conversionHelper(this.visibility);
-      return value >= 10 ? `>= ${value} km` : `${value} km`;
-    }
-    return `${this.visibility} m`;
+  getVisibility(isMetricUnit = true) {
+    return isMetricUnit ? this.#toMeter() : this.#toMiles();
   }
 
   /**
@@ -110,5 +111,20 @@ export default class Weather {
       description: wDescription,
       icon: wIcon
     };
+  }
+
+  #toMeter() {
+    const conversionHelper = (meter) =>  MathHelper.getRound(meter / 1000, 1);
+    if(this.visibility >= 1000) {
+      const value = conversionHelper(this.visibility);
+      return value >= 10 ? `>= ${value} ${spaceUnit.kilometer}` : `${value} ${spaceUnit.kilometer}`;
+    }
+    return `${this.visibility} ${spaceUnit.meter}`;
+  }
+
+  #toMiles() {
+    const conversionHelper = (meter) => MathHelper.getRound(meter * 0.00062137, 1);
+
+    return `${conversionHelper(this.visibility)} ${spaceUnit.miles}`;
   }
 }

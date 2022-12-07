@@ -1,4 +1,4 @@
-import { WeatherController, geocodingMode, unitMode } from 'Controller/weather-controller'; // TODO: switch to imperial data
+import { WeatherController, geocodingMode } from 'Controller/weather-controller';
 import DomManager from 'Utilities/dom-manager';
 import ButtonManager from 'Utilities/button-manager';
 import InputManager from 'Utilities/input-manager';
@@ -10,10 +10,16 @@ import 'Svg/wind-navigation.svg';
 const main = document.querySelector('main');
 
 export default class UiWeatherController {
+  static #hasWeather = false;
+
   constructor() {
     this.weatherController = new WeatherController();
     this.locationCity = true;
   }
+
+  static #setWeather(state) { this.#hasWeather = state; }
+
+  static #getWeather() { return this.#hasWeather; }
 
   // TODO: reset weather data and reload data every hour
 
@@ -131,13 +137,19 @@ export default class UiWeatherController {
     this.displayWeatherInfo();
     this.displayTemperature();
     this.displayWeatherExtra();
+    UiWeatherController.#setWeather(true);
+
     // Show weather node
-    DomManager.toggleDisplayByNode(divWeatherGrid);
+    if (DomManager.isNodeHide(divWeatherGrid)) {
+      DomManager.toggleDisplayByNode(divWeatherGrid);
+    }
   }
 
   static resetWeather() {
     const divWeatherGrid = document.querySelector('.main-weather-grid');
-    if (divWeatherGrid.style.display !== 'none') {
+
+    // Reset when visible
+    if (!DomManager.isNodeHide(divWeatherGrid)) {
       document.querySelector('.main-location').textContent = '';
       document.querySelector('.main-current-time').textContent = '';
       document.querySelector('.main-weather-name').textContent = '';
@@ -158,6 +170,7 @@ export default class UiWeatherController {
       const imgWindDirection = document.querySelector('.grid-wind-direction > img');
       imgWindDirection.style.transform = `rotate(0deg)`;
       document.querySelector('.grid-wind-speed').textContent = '';
+      UiWeatherController.#setWeather(false);
       // Show weather node
       DomManager.toggleDisplayByNode(divWeatherGrid);
     }
@@ -173,9 +186,10 @@ export default class UiWeatherController {
       await this.weatherController.geocodingLocation(editText.value, mode);
       pErrorCode.textContent = '';
       await this.weatherController.fetchWeather();
-      this.displayWeather(); // FIXME: shall click twice
+      this.displayWeather();
       editText.value = '';
     } catch(message) {
+      UiWeatherController.resetWeather();
       pErrorCode.textContent = message;
     }
   }
@@ -205,5 +219,16 @@ export default class UiWeatherController {
     const editText = main.querySelector('#searchBarID');
     editText.value = '';
     pErrorCode.textContent = '';
+  }
+
+  createUnitButton() {
+    const header  = document.querySelector('header');
+    const btn = ButtonManager.createTextButton(this.weatherController.getCurrentUnitMode(), 'unit-button', () => {
+      this.weatherController.toggleUnitSystem();
+      ButtonManager.editButtonText(btn, this.weatherController.getCurrentUnitMode());
+      if(UiWeatherController.#getWeather()) this.displayWeather();
+    });
+
+    DomManager.addNodeChild(header, btn);
   }
 }

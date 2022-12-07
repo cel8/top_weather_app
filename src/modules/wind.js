@@ -1,11 +1,11 @@
 import MathHelper from 'Utilities/math-helper';
 
-export const windUnit = {
+const windUnit = {
   kmh: 'km/h',
   mph: 'mph'
 };
 
-export class Wind {
+export default class Wind {
   constructor(objWind) {
     if (!objWind) throw new 'Invalid wind.';
 
@@ -18,8 +18,8 @@ export class Wind {
 
   get isGustOfWind() { return this.hasGust; }
 
-  getSpeed(unit = windUnit.kmh) {
-    return unit === windUnit.kmh ? this.#toKMh() : this.#toMPh();
+  getSpeed(isMetricUnit = true) {
+    return isMetricUnit ? this.#toKMh() : this.#toMPh();
   }
 
   #toKMh() {
@@ -29,7 +29,7 @@ export class Wind {
   }
 
   #toMPh() {
-    const conversionHelper = (speed) => MathHelper.getRound(speed * 3.6, 1);
+    const conversionHelper = (speed) => MathHelper.getRound(speed * 2.23694, 1);
 
     return `${conversionHelper(this.speed)} ${windUnit.mph}`;
   }

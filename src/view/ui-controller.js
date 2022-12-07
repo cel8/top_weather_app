@@ -8,8 +8,6 @@ import ButtonManager from 'Utilities/button-manager';
 import UiWeatherController from 'View/ui-weather-controller';
 
 const root = document.documentElement;
-const body = document.querySelector('body');
-const main = document.querySelector('main');
 
 export const settings = { theme: 'dark' };
 
@@ -22,7 +20,6 @@ export default class UiController {
     const header  = document.querySelector('header');
     
     DomManager.addNodeChild(header, ButtonManager.createImageButton('home-outline.svg', 'header-button', () => {
-      // FIXME: reset data
       UiWeatherController.resetSearchBar();
       UiWeatherController.resetWeather();
     }));
@@ -32,6 +29,8 @@ export default class UiController {
       ButtonManager.editButtonImage(btnToggleTheme, `${settings.theme}-theme.svg`);
       root.className = settings.theme;
     });
+    
+    this.uiWeatherController.createUnitButton();
 
     DomManager.addNodeChild(header, btnToggleTheme);
   }

@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { Temperature, tempUnit } from 'Modules/temperature';
-import { Wind, windUnit } from 'Modules/wind';
+import Temperature from 'Modules/temperature';
+import Wind from 'Modules/wind';
 import Weather from 'Modules/weather';
 import Zone from 'Modules/zone';
 import moment from 'moment';
@@ -8,8 +8,8 @@ import moment from 'moment';
 const openWeatherMapApiKey = 'deae8c6c4872e7bc487ec8348a3e1d70';
 
 export const unitMode = {
-  metric: 'metric',
-  imperial: 'imperial'
+  metric: 'Metric',
+  imperial: 'Imperial'
 }
 
 export const geocodingMode = {
@@ -68,7 +68,8 @@ export class WeatherController {
       
       return this.zone;
     } catch(error) {
-      throw message;
+      if(error.message) throw error.message;
+      else throw message;
     }
   }
 
@@ -116,6 +117,16 @@ export class WeatherController {
     this.processPrecipitationData(data);
   }
 
+  toggleUnitSystem() {
+    this.currentUnitMode = this.currentUnitMode === unitMode.metric ? unitMode.imperial : unitMode.metric;
+  }
+
+  isMetric() { return this.currentUnitMode === unitMode.metric; }
+
+  isImperial() { return this.currentUnitMode === unitMode.imperial; }
+
+  getCurrentUnitMode() { return this.currentUnitMode; }
+
   getLocation() {
     let locationString = `${this.zone.getCity}`;
     if(this.zone.getState) locationString += `, ${this.zone.getState}`;
@@ -128,15 +139,13 @@ export class WeatherController {
   }
 
   getWeatherTemperature() {
-    const unit = this.currentUnitMode === unitMode.metric ? tempUnit.c : tempUnit.f;
-    return this.weather.getTemp.getTemperature(unit);
+    return this.weather.getTemp.getTemperature(this.isMetric());
   }
 
   getWeatherWind() {
-    const unit = this.currentUnitMode === unitMode.metric ? windUnit.kmh : windUnit.mph;
     return {
       direction: this.weather.getWind.getDirection,
-      speed: this.weather.getWind.getSpeed(unit)
+      speed: this.weather.getWind.getSpeed(this.isMetric())
     }
   }
 
@@ -154,7 +163,7 @@ export class WeatherController {
       cloudiness: this.weather.getCloudiness,
       pressure: this.weather.getTemp.getPressure,
       humidity: this.weather.getTemp.getHumidity,
-      visibility: this.weather.getVisibility
+      visibility: this.weather.getVisibility(this.isMetric())
     }
   }
 
@@ -171,7 +180,8 @@ export class WeatherController {
       this.precessData(response.data);
       return this.weather;
     } catch(error) {
-      throw message;
+      if(error.message) throw error.message;
+      else throw message;
     }
   }
 }
