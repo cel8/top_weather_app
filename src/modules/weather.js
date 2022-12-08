@@ -139,7 +139,8 @@ export default class Weather {
 
   #toMiles() {
     const conversionHelper = (meter) => MathHelper.getRound(meter * 0.00062137, 1);
+    const value = conversionHelper(this.visibility);
 
-    return `${conversionHelper(this.visibility)} ${spaceUnit.miles}`;
+    return value >= 6.2 ? `>= ${value} ${spaceUnit.miles}` : `${value} ${spaceUnit.miles}`;
   }
 }
