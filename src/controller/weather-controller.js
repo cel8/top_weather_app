@@ -107,11 +107,12 @@ export class WeatherController {
     this.weather.setZone = this.zone;
     this.weather.setCloudiness = data.clouds.all;
     this.weather.setVisibility = data.visibility;
-    // FIXME: invalid timezone
-    this.weather.setCurrentTime = moment.unix(data.dt).format('HH:mm')
+    // Set weather time
+    const timezone = data.timezone ? data.timezone / 60 : 0;
+    this.weather.setCurrentTime = moment.unix(data.dt).utcOffset(timezone).format('HH:mm')
     this.weather.setDayTime(
-      moment.unix(data.sys.sunset).format('HH:mm'),
-      moment.unix(data.sys.sunrise).format('HH:mm')
+      moment.unix(data.sys.sunset).utcOffset(timezone).format('HH:mm'),
+      moment.unix(data.sys.sunrise).utcOffset(timezone).format('HH:mm')
     );
     this.processWeatherData(data.weather);
     this.processPrecipitationData(data);
