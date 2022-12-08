@@ -4,9 +4,11 @@ import Wind from 'Modules/wind';
 import Zone from 'Modules/zone';
 
 export const spaceUnit = {
-  meter:     'm',
-  kilometer: 'km',
-  miles:     'mi'
+  inches:     'in',
+  kilometer:  'km',
+  meter:      'm',
+  miles:      'mi',
+  millimeter: 'mm'
 };
 
 export default class Weather {
@@ -36,9 +38,10 @@ export default class Weather {
 
   get getDayTime() { return this.dayTime; }
 
-  get getPrecipitation() {
-    const value = MathHelper.getRound(this.precipitation, 1);
-    return value ? `${value} mm` : 'none'; // TODO: get mm in inch
+  getPrecipitation(isMetricUnit = true) {
+    if(this.precipitation !== 0)
+      return isMetricUnit ? this.#toMilliMeter() : this.#toInches();
+    return 'none';
   }
 
   getVisibility(isMetricUnit = true) {
@@ -111,6 +114,18 @@ export default class Weather {
       description: wDescription,
       icon: wIcon
     };
+  }
+
+  #toMilliMeter() {
+    const conversionHelper = (mm) => MathHelper.getRound(mm * 1, 2);
+
+    return `${conversionHelper(this.precipitation)} ${spaceUnit.millimeter}`;
+  }
+
+  #toInches() {
+    const conversionHelper = (mm) => MathHelper.getRound(mm * 0.0393701, 2);
+
+    return `${conversionHelper(this.precipitation)} ${spaceUnit.inches}`;
   }
 
   #toMeter() {

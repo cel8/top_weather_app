@@ -5,6 +5,13 @@ const tempUnit = {
   f: '°F'
 };
 
+const pressUnit = {
+  millibar: 'mbar',
+  hectopascal: 'hPa',
+  inch: 'inHg'
+};
+
+
 export default class Temperature {
   constructor(objTemperature) {
     if (!objTemperature) throw new 'Invalid temperature.';
@@ -16,7 +23,9 @@ export default class Temperature {
     this.pressure = objTemperature.pressure;
   }
 
-  get getPressure() { return `${this.pressure} mbar`; } // TODO: get in inch
+  getPressure(isMetricUnit = true) {
+    return isMetricUnit ? this.#toBar() : this.#toInches();
+  }
 
   get getHumidity() { return `${this.humidity}%`; }
 
@@ -42,5 +51,17 @@ export default class Temperature {
       max: `${conversionHelper(this.tempMax)} ${tempUnit.f}`,
       feels: `${conversionHelper(this.tempFeelsLike)} ${tempUnit.f}`
     }
+  }
+
+  #toBar() {
+    const conversionHelper = (hpascal) => MathHelper.getRound(hpascal * 1, 2);
+
+    return `${conversionHelper(this.pressure)} ${pressUnit.millibar}`;
+  }
+
+  #toInches() {
+    const conversionHelper = (hpascal) => MathHelper.getRound(hpascal * 0.02953, 2);
+
+    return `${conversionHelper(this.pressure)} ${pressUnit.inch}`;
   }
 }

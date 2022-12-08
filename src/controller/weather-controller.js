@@ -154,14 +154,14 @@ export class WeatherController {
   }
 
   getPrecipitation() {
-    return this.weather.getPrecipitation;
+    return this.weather.getPrecipitation(this.isMetric());
   }
 
   getWeatherExtraInfo() {
     return {
       dayTime: this.weather.getDayTime,
       cloudiness: this.weather.getCloudiness,
-      pressure: this.weather.getTemp.getPressure,
+      pressure: this.weather.getTemp.getPressure(this.isMetric()),
       humidity: this.weather.getTemp.getHumidity,
       visibility: this.weather.getVisibility(this.isMetric())
     }
