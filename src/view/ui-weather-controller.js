@@ -15,13 +15,12 @@ export default class UiWeatherController {
   constructor() {
     this.weatherController = new WeatherController();
     this.locationCity = true;
+    this.cbUpdateWeatherTimer = undefined;
   }
 
   static #setWeather(state) { this.#hasWeather = state; }
 
   static #getWeather() { return this.#hasWeather; }
-
-  // TODO: reset weather data and reload data every hour
 
   createMainSection() {
     this.createSearchSection();
@@ -150,6 +149,7 @@ export default class UiWeatherController {
 
     // Reset when visible
     if (!DomManager.isNodeHide(divWeatherGrid)) {
+      this.#stopUpdateWeatherTimer();
       document.querySelector('.main-location').textContent = '';
       document.querySelector('.main-current-time').textContent = '';
       document.querySelector('.main-weather-name').textContent = '';
@@ -176,21 +176,48 @@ export default class UiWeatherController {
     }
   }
 
+  async uiFetchWeather() {
+    const form = main.querySelector('form');
+    const pErrorCode = form.querySelector('p');
+    try {
+      await this.weatherController.fetchWeather();
+      this.displayWeather();
+    } catch(message) {
+      UiWeatherController.resetWeather();
+      pErrorCode.textContent = message;
+    }
+  }
+
   async cbSearchEvent(event) {
     event.preventDefault();
     const form = main.querySelector('form');
     const pErrorCode = form.querySelector('p');
     try {
+      this.#stopUpdateWeatherTimer();
       const editText = main.querySelector('#searchBarID');
       const mode = this.locationCity ? geocodingMode.location : geocodingMode.zip;
       await this.weatherController.geocodingLocation(editText.value, mode);
       pErrorCode.textContent = '';
-      await this.weatherController.fetchWeather();
-      this.displayWeather();
+      await this.uiFetchWeather();
+      this.#startUpdateWeatherTimer();
       editText.value = '';
     } catch(message) {
       UiWeatherController.resetWeather();
       pErrorCode.textContent = message;
+    }
+  }
+
+  #startUpdateWeatherTimer() {
+    const interval = 60 * 60 * 1000;
+    this.cbUpdateWeatherTimer = setInterval(async () => {
+      await this.uiFetchWeather(); 
+    }, interval);
+  }
+
+  #stopUpdateWeatherTimer() {
+    if(this.cbUpdateWeatherTimer) {
+      clearInterval(this.cbUpdateWeatherTimer);
+      this.cbUpdateWeatherTimer = undefined;
     }
   }
 
