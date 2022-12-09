@@ -28,9 +28,9 @@ export class WeatherController {
     let geocodeString;
 
     if (mode === geocodingMode.location) { // Location
-      geocodeString = `http://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=${openWeatherMapApiKey}`;
+      geocodeString = `https://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=${openWeatherMapApiKey}`;
     } else { // ZIP
-      geocodeString = `http://api.openweathermap.org/geo/1.0/zip?zip=${location}&appid=${openWeatherMapApiKey}`;
+      geocodeString = `https://api.openweathermap.org/geo/1.0/zip?zip=${location}&appid=${openWeatherMapApiKey}`;
     }
 
     return geocodeString;
