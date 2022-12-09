@@ -250,6 +250,11 @@ form {
   font-weight: 700;
 }
 
+#searchBarID {
+  border-radius: 0.5rem;
+  border-width: 0.1rem;
+}
+
 /* Grid weather information */
 
 .main-weather-info-grid {

@@ -178,8 +178,7 @@ export default class UiWeatherController {
   }
 
   async #uiFetchWeather() {
-    const form = header.querySelector('form');
-    const pErrorCode = form.querySelector('p');
+    const pErrorCode = main.querySelector('.form-error');
     try {
       await this.weatherController.fetchWeather();
       this.#displayWeather();
@@ -191,8 +190,7 @@ export default class UiWeatherController {
 
   async #cbSearchEvent(event) {
     event.preventDefault();
-    const form = header.querySelector('form');
-    const pErrorCode = form.querySelector('p');
+    const pErrorCode = main.querySelector('.form-error');
     try {
       this.#stopUpdateWeatherTimer();
       const editText = header.querySelector('#searchBarID');
@@ -226,14 +224,15 @@ export default class UiWeatherController {
     const divSearch = DomManager.createNode('div', 'main-search-weather');
     const form = DomManager.createNode('form', 'search-bar');
     const editText = InputManager.createEditText('searchBarID', 'City name, state, country.');
-    const pErrorCode = DomManager.createNodeContent('p', '', 'form-error'); // FIXME: move it somewhere else
+    const pErrorCode = DomManager.createNodeContent('p', '', 'form-error');
     const btnSubmit = InputManager.createButton('submitID', '', 'magnify.svg', 'form-button', (e) => { this.#cbSearchEvent(e); }, form);
     const btnCity = ButtonManager.createImageButton('city.svg', 'weather-button', () => { this.#cbChangePlaceholder(); });
 
     // Add form objects
     DomManager.addNodeChild(form, editText.input);
-    DomManager.addNodeChild(form, pErrorCode);
     DomManager.addNodeChild(form, btnSubmit.input);
+    // Add to main
+    DomManager.addNodeChild(main, pErrorCode);
 
     // Add section to header
     DomManager.addNodeChild(header, divSearch);
@@ -243,7 +242,7 @@ export default class UiWeatherController {
 
   static resetSearchBar() {
     const form = header.querySelector('form');
-    const pErrorCode = form.querySelector('p');
+    const pErrorCode = main.querySelector('.form-error');
     const editText = form.querySelector('#searchBarID');
     editText.value = '';
     pErrorCode.textContent = '';
