@@ -1,7 +1,8 @@
 # top_weather_app
-%%description%% part of <a href="src-page-link">The Odin Project assignment</a>.
+A Weather application part of <a href="https://www.theodinproject.com/lessons/node-path-javascript-weather-app">The Odin Project assignment</a>.
 
 Learning:
-- %%learn%%
+- Asynchronous code
+- Weather API
 
-Live demo <a href="dst-page-link">here</a>.
+Live demo <a href="https://cel8.github.io/top_weather_app/">here</a>.
