@@ -154,18 +154,14 @@ input:checked + .slider:before {
 
 .header-button,
 .form-button,
-.weather-button,
-.grid-header-icon,
-.grid-wind-direction {
+.weather-button {
   border: none;
   background-color: var(--color-primary-bg);
 }
 
 .header-button       > p,
 .form-button         > p,
-.weather-button      > p,
-.grid-header-icon    > p,
-.grid-wind-direction > p  {
+.weather-button      > p {
   font-weight: bold;
   color: var(--color-primary-text);
 }
@@ -174,6 +170,12 @@ input:checked + .slider:before {
 .form-button         > img,
 .weather-button      > img  {
   filter: var(--icon-filter) drop-shadow(1px 2px 0 var(--color-shadow));
+}
+
+.grid-header-icon,
+.grid-wind-direction {
+  border: none;
+  background-color: var(--color-secondary-bg);
 }
 
 .grid-header-icon    > img,
@@ -257,8 +259,107 @@ form {
 
 /* Grid weather information */
 
-.main-weather-info-grid {
+main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-weather-grid {
+  background-color: var(--color-secondary-bg);
+  border: 0.2rem solid var(--color-primary-fg);
+  border-radius: 1rem;
+  padding: 1rem;
+  margin: 2rem;
+  width: 650px;
+}
+
+.main-location {
+  font-size: xx-large;
+}
+
+.main-current-time {
+  font-size: x-large;
+}
+
+.main-weather-name {
+  font-size: large;
+  font-weight: 600;
+}
+
+.main-weather {
+  display: grid;
+  grid-template-rows: repeat(1, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  justify-items: center;
+}
+
+.main-weather-info-grid-primary {
   display: grid;
   grid-template-rows: repeat(2, 1fr);
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(4, 1fr);
+  align-items: center;
+  justify-items: center;
+  padding: 1rem;
+}
+
+.main-weather-info-grid-secondary {
+  display: grid;
+  grid-template-rows: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  justify-items: center;
+  padding: 1rem;
+}
+
+.grid-header {
+  font-size: large;
+  font-weight: 600;
+}
+
+.grid-wind {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.main-temperature-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5rem;
+}
+
+.main-temperature-container > p:first-of-type {
+  font-size: x-large;
+  font-weight: 700;
+}
+
+.main-temperature-max {
+  font-size: large;
+  color: red;
+}
+
+.main-temperature-min {
+  font-size: large;
+  color: blue;
+}
+
+.main-temperature-feels {
+  font-size: large;
+}
+
+/* Error code */
+
+.form-error {
+  background-color: var(--color-secondary-bg);
+  border: 0.2rem solid var(--color-primary-fg);
+  border-radius: 1rem;
+  padding: 1rem;
+  margin: 2rem;
+  width: 650px;
+  font-size: x-large;
+  font-weight: 600;
 }

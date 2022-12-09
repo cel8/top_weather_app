@@ -36,8 +36,9 @@ export default class UiWeatherController {
     // Weather
     const divWeather = DomManager.createNode('div', 'main-weather');
     DomManager.createAddNodeImg('', 'weather-icon', divWeather, 'main-weather-icon', null, false);
-    DomManager.createAddNode('p', divWeather, 'main-weather-name');
-    DomManager.createAddNode('p', divWeather, 'main-weather-description');
+    const divWeatherName = DomManager.createAddNode('div', divWeather);
+    DomManager.createAddNode('p', divWeatherName, 'main-weather-name');
+    DomManager.createAddNode('p', divWeatherName, 'main-weather-description');
     const divPrecipitation = DomManager.createNode('div', 'main-weather-precipitation');
     DomManager.createAddNode('p', divPrecipitation, 'grid-header', null, 'Precipitation');
     DomManager.createAddNode('p', divPrecipitation, 'grid-precipitation');
@@ -50,23 +51,27 @@ export default class UiWeatherController {
     DomManager.createAddNode('p', divTemperatureInfo, 'main-temperature-feels');
     DomManager.createAddNode('p', divTemperatureInfo, 'main-temperature-min');
     // Other information grid
-    const divWeatherInfoGrid = DomManager.createNode('div', 'main-weather-info-grid');
+    const divWeatherInfoGridPrimary = DomManager.createNode('div', 'main-weather-info-grid-primary');
     // Header bar
-    DomManager.addNodeChild(divWeatherInfoGrid, ButtonManager.createImageButton('sunrise.svg', 'grid-header-icon'));
-    DomManager.addNodeChild(divWeatherInfoGrid, ButtonManager.createImageButton('sunset.svg', 'grid-header-icon'));
-    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-header', null, 'Cloudiness');
-    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-header', null, 'Humidity');
-    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-header', null, 'Pressure');
-    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-header', null, 'Visibility');
-    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-header', null, 'Wind');
+    DomManager.addNodeChild(divWeatherInfoGridPrimary, ButtonManager.createImageButton('sunrise.svg', 'grid-header-icon'));
+    DomManager.addNodeChild(divWeatherInfoGridPrimary, ButtonManager.createImageButton('sunset.svg', 'grid-header-icon'));
+    DomManager.createAddNode('p', divWeatherInfoGridPrimary, 'grid-header', null, 'Cloudiness');
+    DomManager.createAddNode('p', divWeatherInfoGridPrimary, 'grid-header', null, 'Visibility');
     // Registration
-    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-sunrise');
-    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-sunset');
-    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-cloudiness');
-    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-humidity');
-    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-pressure');
-    DomManager.createAddNode('p', divWeatherInfoGrid, 'grid-visibility');
-    const divWind = DomManager.createAddNode('div', divWeatherInfoGrid, 'grid-wind');
+    DomManager.createAddNode('p', divWeatherInfoGridPrimary, 'grid-sunrise');
+    DomManager.createAddNode('p', divWeatherInfoGridPrimary, 'grid-sunset');
+    DomManager.createAddNode('p', divWeatherInfoGridPrimary, 'grid-cloudiness');
+    DomManager.createAddNode('p', divWeatherInfoGridPrimary, 'grid-visibility');
+    // Other information grid
+    const divWeatherInfoGridSecondary = DomManager.createNode('div', 'main-weather-info-grid-secondary');
+    // Second header bar
+    DomManager.createAddNode('p', divWeatherInfoGridSecondary, 'grid-header', null, 'Humidity');
+    DomManager.createAddNode('p', divWeatherInfoGridSecondary, 'grid-header', null, 'Pressure');
+    DomManager.createAddNode('p', divWeatherInfoGridSecondary, 'grid-header', null, 'Wind');
+    // Second registration
+    DomManager.createAddNode('p', divWeatherInfoGridSecondary, 'grid-humidity');
+    DomManager.createAddNode('p', divWeatherInfoGridSecondary, 'grid-pressure');
+    const divWind = DomManager.createAddNode('div', divWeatherInfoGridSecondary, 'grid-wind');
     DomManager.addNodeChild(divWind, ButtonManager.createImageButton('wind-navigation.svg', 'grid-wind-direction'));
     DomManager.createAddNode('p', divWind, 'grid-wind-speed');
     // Add section to main
@@ -75,7 +80,8 @@ export default class UiWeatherController {
     DomManager.addNodeChild(divWeatherGrid, divCurrentTime);
     DomManager.addNodeChild(divWeatherGrid, divWeather);
     DomManager.addNodeChild(divWeatherGrid, divTemperature);
-    DomManager.addNodeChild(divWeatherGrid, divWeatherInfoGrid);
+    DomManager.addNodeChild(divWeatherGrid, divWeatherInfoGridPrimary);
+    DomManager.addNodeChild(divWeatherGrid, divWeatherInfoGridSecondary);
     // Hide weather node
     DomManager.toggleDisplayByNode(divWeatherGrid);
   }
@@ -178,31 +184,29 @@ export default class UiWeatherController {
   }
 
   async #uiFetchWeather() {
-    const pErrorCode = main.querySelector('.form-error');
     try {
       await this.weatherController.fetchWeather();
       this.#displayWeather();
     } catch(message) {
       this.resetWeather();
-      pErrorCode.textContent = message;
+      UiWeatherController.showErrorMessage(message);
     }
   }
 
   async #cbSearchEvent(event) {
     event.preventDefault();
-    const pErrorCode = main.querySelector('.form-error');
     try {
       this.#stopUpdateWeatherTimer();
       const editText = header.querySelector('#searchBarID');
       const mode = this.locationCity ? geocodingMode.location : geocodingMode.zip;
       await this.weatherController.geocodingLocation(editText.value, mode);
-      pErrorCode.textContent = '';
+      UiWeatherController.showErrorMessage('');
       await this.#uiFetchWeather();
       this.#startUpdateWeatherTimer();
       editText.value = '';
     } catch(message) {
       this.resetWeather();
-      pErrorCode.textContent = message;
+      UiWeatherController.showErrorMessage(message);
     }
   }
 
@@ -231,8 +235,9 @@ export default class UiWeatherController {
     // Add form objects
     DomManager.addNodeChild(form, editText.input);
     DomManager.addNodeChild(form, btnSubmit.input);
-    // Add to main
+    // Add to main and hide
     DomManager.addNodeChild(main, pErrorCode);
+    DomManager.toggleDisplayByNode(pErrorCode);
 
     // Add section to header
     DomManager.addNodeChild(header, divSearch);
@@ -242,10 +247,22 @@ export default class UiWeatherController {
 
   static resetSearchBar() {
     const form = header.querySelector('form');
-    const pErrorCode = main.querySelector('.form-error');
     const editText = form.querySelector('#searchBarID');
     editText.value = '';
-    pErrorCode.textContent = '';
+    UiWeatherController.showErrorMessage('');
+  }
+
+  static showErrorMessage(message) {
+    const pErrorCode = main.querySelector('.form-error');
+    pErrorCode.textContent = message;
+
+    if (message !== '') {
+      // Show error message
+      if(DomManager.isNodeHide(pErrorCode)) DomManager.toggleDisplayByNode(pErrorCode);
+    } else if(!DomManager.isNodeHide(pErrorCode)) {
+      // Hide error code
+      DomManager.toggleDisplayByNode(pErrorCode);
+    }
   }
 
   #createUnitButton() {
