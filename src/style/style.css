@@ -152,6 +152,104 @@ input:checked + .slider:before {
   width: 2rem;
 }
 
+.header-button,
+.form-button,
+.weather-button,
+.grid-header-icon,
+.grid-wind-direction {
+  border: none;
+  background-color: var(--color-primary-bg);
+}
+
+.header-button       > p,
+.form-button         > p,
+.weather-button      > p,
+.grid-header-icon    > p,
+.grid-wind-direction > p  {
+  font-weight: bold;
+  color: var(--color-primary-text);
+}
+
+.header-button       > img,
+.form-button         > img,
+.weather-button      > img  {
+  filter: var(--icon-filter) drop-shadow(1px 2px 0 var(--color-shadow));
+}
+
+.grid-header-icon    > img,
+.grid-wind-direction > img  {
+  filter: var(--icon-filter);
+}
+
+.header-button:enabled       > p,
+.form-button:enabled         > p,
+.weather-button:enabled      > p {
+  filter: brightness(90%);
+}
+
+.header-button:hover:enabled       > img,
+.form-button:hover:enabled         > img,
+.weather-button:hover:enabled      > img  {
+  filter: var(--icon-filter) brightness(90%) drop-shadow(1px 2px 0 var(--color-shadow));
+}
+
+.header-button:active:enabled       > p,
+.form-button:active:enabled         > p,
+.weather-button:active:enabled      > p  {
+  transform: translateY(4px) translateX(2px);
+  filter: brightness(90%);
+}
+
+.header-button:active:enabled       > img,
+.form-button:active:enabled         > img,
+.weather-button:active:enabled      > img {
+  transform: translateY(4px) translateX(2px);
+  filter: var(--icon-filter) brightness(90%) drop-shadow(1px 1px 0 var(--color-shadow));
+}
+
+/* Header */
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+header > :first-child {
+  margin-right: auto;
+}
+
+header > :last-child {
+  margin-left: auto;
+}
+
+/* Search box weather */
+
+.main-search-weather {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+}
+
+form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+}
+
+.unit-button {
+  width: 70px;
+}
+
+.unit-button > p {
+  margin: 0.1rem;
+  font-weight: 700;
+}
+
 /* Grid weather information */
 
 .main-weather-info-grid {

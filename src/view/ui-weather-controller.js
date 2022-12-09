@@ -145,7 +145,7 @@ export default class UiWeatherController {
     }
   }
 
-  #resetWeather() {
+  resetWeather() {
     const divWeatherGrid = document.querySelector('.main-weather-grid');
 
     // Reset when visible
@@ -184,7 +184,7 @@ export default class UiWeatherController {
       await this.weatherController.fetchWeather();
       this.#displayWeather();
     } catch(message) {
-      this.#resetWeather();
+      this.resetWeather();
       pErrorCode.textContent = message;
     }
   }
@@ -203,7 +203,7 @@ export default class UiWeatherController {
       this.#startUpdateWeatherTimer();
       editText.value = '';
     } catch(message) {
-      this.#resetWeather();
+      this.resetWeather();
       pErrorCode.textContent = message;
     }
   }
@@ -211,7 +211,7 @@ export default class UiWeatherController {
   #startUpdateWeatherTimer() {
     const interval = 60 * 60 * 1000;
     this.cbUpdateWeatherTimer = setInterval(async () => {
-      await this.#uiFetchWeather(); 
+      await this.#uiFetchWeather();
     }, interval);
   }
 
@@ -226,8 +226,8 @@ export default class UiWeatherController {
     const divSearch = DomManager.createNode('div', 'main-search-weather');
     const form = DomManager.createNode('form', 'search-bar');
     const editText = InputManager.createEditText('searchBarID', 'City name, state, country.');
-    const pErrorCode = DomManager.createNodeContent('p', '', 'form-error');
-    const btnSubmit = InputManager.createButton('submitID', '', 'magnify.svg', 'formBtn', (e) => { this.#cbSearchEvent(e); }, form);
+    const pErrorCode = DomManager.createNodeContent('p', '', 'form-error'); // FIXME: move it somewhere else
+    const btnSubmit = InputManager.createButton('submitID', '', 'magnify.svg', 'form-button', (e) => { this.#cbSearchEvent(e); }, form);
     const btnCity = ButtonManager.createImageButton('city.svg', 'weather-button', () => { this.#cbChangePlaceholder(); });
 
     // Add form objects
