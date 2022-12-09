@@ -3,7 +3,7 @@ import Temperature from 'Modules/temperature';
 import Wind from 'Modules/wind';
 import Zone from 'Modules/zone';
 
-export const spaceUnit = {
+const spaceUnit = {
   inches:     'in',
   kilometer:  'km',
   meter:      'm',

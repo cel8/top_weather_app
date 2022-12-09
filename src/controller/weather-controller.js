@@ -24,7 +24,7 @@ export class WeatherController {
     this.currentUnitMode = unitMode.metric;
   }
 
-  static getGeocodingString(location, mode) {
+  static #getGeocodingString(location, mode) {
     let geocodeString;
 
     if (mode === geocodingMode.location) { // Location
@@ -36,7 +36,7 @@ export class WeatherController {
     return geocodeString;
   }
 
-  static getGeocodingData(response) {
+  static #getGeocodingData(response) {
     let geocode;
 
     if (Array.isArray(response.data)) {
@@ -53,9 +53,9 @@ export class WeatherController {
     const message = `Cannot find this location '${location}'.`;
 
     try {
-      const geocodeString = WeatherController.getGeocodingString(location, mode);
+      const geocodeString = WeatherController.#getGeocodingString(location, mode);
       const response = await axios.get(geocodeString);
-      const data = WeatherController.getGeocodingData(response);
+      const data = WeatherController.#getGeocodingData(response);
       if(!data) throw message;
 
       this.zone = new Zone(
@@ -73,7 +73,7 @@ export class WeatherController {
     }
   }
 
-  processWeatherData(weather) {
+  #processWeatherData(weather) {
     let weatherData = weather;
 
     if (Array.isArray(weather)) {
@@ -88,7 +88,7 @@ export class WeatherController {
                                    weatherData.icon);
   }
 
-  processPrecipitationData(data) {
+  #processPrecipitationData(data) {
     const wid = this.weather.getCurrentWeather.id;
 
     // Set precipitation
@@ -99,7 +99,7 @@ export class WeatherController {
     }
   }
 
-  precessData(data) {
+  #processData(data) {
     this.weather = new Weather();
     // Set weather information
     this.weather.setTemperature = new Temperature(data.main);
@@ -114,17 +114,15 @@ export class WeatherController {
       moment.unix(data.sys.sunset).utcOffset(timezone).format('HH:mm'),
       moment.unix(data.sys.sunrise).utcOffset(timezone).format('HH:mm')
     );
-    this.processWeatherData(data.weather);
-    this.processPrecipitationData(data);
+    this.#processWeatherData(data.weather);
+    this.#processPrecipitationData(data);
   }
 
   toggleUnitSystem() {
     this.currentUnitMode = this.currentUnitMode === unitMode.metric ? unitMode.imperial : unitMode.metric;
   }
 
-  isMetric() { return this.currentUnitMode === unitMode.metric; }
-
-  isImperial() { return this.currentUnitMode === unitMode.imperial; }
+  #isMetric() { return this.currentUnitMode === unitMode.metric; }
 
   getCurrentUnitMode() { return this.currentUnitMode; }
 
@@ -140,13 +138,13 @@ export class WeatherController {
   }
 
   getWeatherTemperature() {
-    return this.weather.getTemp.getTemperature(this.isMetric());
+    return this.weather.getTemp.getTemperature(this.#isMetric());
   }
 
   getWeatherWind() {
     return {
       direction: this.weather.getWind.getDirection,
-      speed: this.weather.getWind.getSpeed(this.isMetric())
+      speed: this.weather.getWind.getSpeed(this.#isMetric())
     }
   }
 
@@ -155,16 +153,16 @@ export class WeatherController {
   }
 
   getPrecipitation() {
-    return this.weather.getPrecipitation(this.isMetric());
+    return this.weather.getPrecipitation(this.#isMetric());
   }
 
   getWeatherExtraInfo() {
     return {
       dayTime: this.weather.getDayTime,
       cloudiness: this.weather.getCloudiness,
-      pressure: this.weather.getTemp.getPressure(this.isMetric()),
+      pressure: this.weather.getTemp.getPressure(this.#isMetric()),
       humidity: this.weather.getTemp.getHumidity,
-      visibility: this.weather.getVisibility(this.isMetric())
+      visibility: this.weather.getVisibility(this.#isMetric())
     }
   }
 
@@ -178,7 +176,7 @@ export class WeatherController {
       const units = 'metric';
       const apiCallString = `${apiUrl}weather?lat=${lat}&lon=${lon}&units=${units}&appid=${openWeatherMapApiKey}`;
       const response = await axios.get(apiCallString);
-      this.precessData(response.data);
+      this.#processData(response.data);
       return this.weather;
     } catch(error) {
       if(error.message) throw error.message;

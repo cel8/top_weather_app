@@ -21,7 +21,7 @@ export default class UiController {
     
     DomManager.addNodeChild(header, ButtonManager.createImageButton('home-outline.svg', 'header-button', () => {
       UiWeatherController.resetSearchBar();
-      UiWeatherController.resetWeather();
+      this.uiWeatherController.resetWeather();
     }));
 
     const btnToggleTheme = ButtonManager.createImageButton(`${settings.theme}-theme.svg`, 'header-button', () => {
@@ -30,17 +30,17 @@ export default class UiController {
       root.className = settings.theme;
     });
     
-    this.uiWeatherController.createUnitButton();
+    this.uiWeatherController.createHeaderWeatherBar();
 
     DomManager.addNodeChild(header, btnToggleTheme);
   }
 
-  #doCreateHome() {
-    this.uiWeatherController.createMainSection();
+  static #doCreateHome() {
+    UiWeatherController.createMainSection();
   }
 
-  #doLoadMainContent() {
-    this.#doCreateHome();
+  static #doLoadMainContent() {
+    UiController.#doCreateHome();
   }
 
   static #doLoadFooter() {
@@ -54,7 +54,7 @@ export default class UiController {
     // Set main root theme
     root.className = settings.theme;
     this.#doLoadHeader();
-    this.#doLoadMainContent();
+    UiController.#doLoadMainContent();
     UiController.#doLoadFooter();
   }
 }

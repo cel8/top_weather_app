@@ -5,9 +5,11 @@ import InputManager from 'Utilities/input-manager';
 import 'Svg/city.svg';
 import 'Svg/sunset.svg';
 import 'Svg/sunrise.svg';
+import 'Svg/magnify.svg';
 import 'Svg/wind-navigation.svg';
 
 const main = document.querySelector('main');
+const header  = document.querySelector('header');
 
 export default class UiWeatherController {
   static #hasWeather = false;
@@ -22,12 +24,11 @@ export default class UiWeatherController {
 
   static #getWeather() { return this.#hasWeather; }
 
-  createMainSection() {
-    this.createSearchSection();
-    UiWeatherController.createWeatherSection();
+  static createMainSection() {
+    UiWeatherController.#createWeatherSection();
   }
 
-  static createWeatherSection() {
+  static #createWeatherSection() {
     const divWeatherGrid = DomManager.createNode('div', 'main-weather-grid');
     // Location
     const divLocation = DomManager.createNode('p', 'main-location');
@@ -79,8 +80,8 @@ export default class UiWeatherController {
     DomManager.toggleDisplayByNode(divWeatherGrid);
   }
 
-  cbChangePlaceholder() {
-    const editText = main.querySelector('#searchBarID');
+  #cbChangePlaceholder() {
+    const editText = header.querySelector('#searchBarID');
     // Toggle operation
     this.locationCity = !this.locationCity;
     // Setup content
@@ -89,14 +90,14 @@ export default class UiWeatherController {
     editText.setAttribute('placeholder', placeholder);
   }
 
-  displayWind() {
+  #displayWind() {
     const objWind = this.weatherController.getWeatherWind();
     const imgWindDirection = document.querySelector('.grid-wind-direction > img');
     imgWindDirection.style.transform = `rotate(${objWind.direction}deg)`;
     document.querySelector('.grid-wind-speed').textContent = objWind.speed;
   }
 
-  displayWeatherExtra() {
+  #displayWeatherExtra() {
     const objExtraInfo = this.weatherController.getWeatherExtraInfo();
     document.querySelector('.grid-sunrise').textContent = objExtraInfo.dayTime.sunrise;
     document.querySelector('.grid-sunset').textContent = objExtraInfo.dayTime.sunset;
@@ -104,10 +105,10 @@ export default class UiWeatherController {
     document.querySelector('.grid-humidity').textContent = objExtraInfo.humidity;
     document.querySelector('.grid-pressure').textContent = objExtraInfo.pressure;
     document.querySelector('.grid-visibility').textContent = objExtraInfo.visibility;
-    this.displayWind();
+    this.#displayWind();
   }
 
-  displayTemperature() {
+  #displayTemperature() {
     const objTemperature = this.weatherController.getWeatherTemperature();
     document.querySelector('.main-temperature').textContent = objTemperature.temp;
     document.querySelector('.main-temperature-max').textContent = objTemperature.max;
@@ -115,27 +116,27 @@ export default class UiWeatherController {
     document.querySelector('.main-temperature-min').textContent = objTemperature.min;
   }
 
-  displayPrecipitation() {
+  #displayPrecipitation() {
     document.querySelector('.grid-precipitation').textContent = this.weatherController.getPrecipitation();
   }
 
-  displayWeatherInfo() {
+  #displayWeatherInfo() {
     const objWeather = this.weatherController.getWeather();
     document.querySelector('.main-weather-name').textContent = objWeather.main;
     document.querySelector('.main-weather-description').textContent = objWeather.description;
     const icon = document.querySelector('.main-weather-icon');
     const url = `http://openweathermap.org/img/wn/${objWeather.icon}@2x.png`;
     DomManager.updateNodeImg(url, icon, false);
-    this.displayPrecipitation();
+    this.#displayPrecipitation();
   }
 
-  displayWeather() {
+  #displayWeather() {
     const divWeatherGrid = document.querySelector('.main-weather-grid');
     document.querySelector('.main-location').textContent = this.weatherController.getLocation();
     document.querySelector('.main-current-time').textContent = this.weatherController.getCurrentTime();
-    this.displayWeatherInfo();
-    this.displayTemperature();
-    this.displayWeatherExtra();
+    this.#displayWeatherInfo();
+    this.#displayTemperature();
+    this.#displayWeatherExtra();
     UiWeatherController.#setWeather(true);
 
     // Show weather node
@@ -144,7 +145,7 @@ export default class UiWeatherController {
     }
   }
 
-  static resetWeather() {
+  #resetWeather() {
     const divWeatherGrid = document.querySelector('.main-weather-grid');
 
     // Reset when visible
@@ -176,33 +177,33 @@ export default class UiWeatherController {
     }
   }
 
-  async uiFetchWeather() {
-    const form = main.querySelector('form');
+  async #uiFetchWeather() {
+    const form = header.querySelector('form');
     const pErrorCode = form.querySelector('p');
     try {
       await this.weatherController.fetchWeather();
-      this.displayWeather();
+      this.#displayWeather();
     } catch(message) {
-      UiWeatherController.resetWeather();
+      this.#resetWeather();
       pErrorCode.textContent = message;
     }
   }
 
-  async cbSearchEvent(event) {
+  async #cbSearchEvent(event) {
     event.preventDefault();
-    const form = main.querySelector('form');
+    const form = header.querySelector('form');
     const pErrorCode = form.querySelector('p');
     try {
       this.#stopUpdateWeatherTimer();
-      const editText = main.querySelector('#searchBarID');
+      const editText = header.querySelector('#searchBarID');
       const mode = this.locationCity ? geocodingMode.location : geocodingMode.zip;
       await this.weatherController.geocodingLocation(editText.value, mode);
       pErrorCode.textContent = '';
-      await this.uiFetchWeather();
+      await this.#uiFetchWeather();
       this.#startUpdateWeatherTimer();
       editText.value = '';
     } catch(message) {
-      UiWeatherController.resetWeather();
+      this.#resetWeather();
       pErrorCode.textContent = message;
     }
   }
@@ -210,7 +211,7 @@ export default class UiWeatherController {
   #startUpdateWeatherTimer() {
     const interval = 60 * 60 * 1000;
     this.cbUpdateWeatherTimer = setInterval(async () => {
-      await this.uiFetchWeather(); 
+      await this.#uiFetchWeather(); 
     }, interval);
   }
 
@@ -221,41 +222,45 @@ export default class UiWeatherController {
     }
   }
 
-  createSearchSection() {
+  #createSearchSection() {
     const divSearch = DomManager.createNode('div', 'main-search-weather');
-    const form = DomManager.createAddNode('form', main, 'search-bar');
+    const form = DomManager.createNode('form', 'search-bar');
     const editText = InputManager.createEditText('searchBarID', 'City name, state, country.');
     const pErrorCode = DomManager.createNodeContent('p', '', 'form-error');
-    const btnSubmit = InputManager.createButton('submitID', 'Submit', null, 'formBtn', (e) => { this.cbSearchEvent(e); }, form);
-    const btnCity = ButtonManager.createImageButton('city.svg', 'weather-button', () => { this.cbChangePlaceholder(); });
+    const btnSubmit = InputManager.createButton('submitID', '', 'magnify.svg', 'formBtn', (e) => { this.#cbSearchEvent(e); }, form);
+    const btnCity = ButtonManager.createImageButton('city.svg', 'weather-button', () => { this.#cbChangePlaceholder(); });
 
     // Add form objects
     DomManager.addNodeChild(form, editText.input);
     DomManager.addNodeChild(form, pErrorCode);
     DomManager.addNodeChild(form, btnSubmit.input);
 
-    // Add section to main
-    DomManager.addNodeChild(main, divSearch);
+    // Add section to header
+    DomManager.addNodeChild(header, divSearch);
     DomManager.addNodeChild(divSearch, form);
     DomManager.addNodeChild(divSearch, btnCity);
   }
 
   static resetSearchBar() {
-    const form = main.querySelector('form');
+    const form = header.querySelector('form');
     const pErrorCode = form.querySelector('p');
-    const editText = main.querySelector('#searchBarID');
+    const editText = form.querySelector('#searchBarID');
     editText.value = '';
     pErrorCode.textContent = '';
   }
 
-  createUnitButton() {
-    const header  = document.querySelector('header');
+  #createUnitButton() {
     const btn = ButtonManager.createTextButton(this.weatherController.getCurrentUnitMode(), 'unit-button', () => {
       this.weatherController.toggleUnitSystem();
       ButtonManager.editButtonText(btn, this.weatherController.getCurrentUnitMode());
-      if(UiWeatherController.#getWeather()) this.displayWeather();
+      if(UiWeatherController.#getWeather()) this.#displayWeather();
     });
 
     DomManager.addNodeChild(header, btn);
+  }
+
+  createHeaderWeatherBar() {
+    this.#createSearchSection();
+    this.#createUnitButton();
   }
 }
